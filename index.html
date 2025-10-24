@@ -76,10 +76,11 @@
         <h1>🎬 MytelPayV2 Deep Link Test</h1>
         
         <div class="note">
-            <strong>🎯 Smart Deep Link Testing:</strong> This page automatically detects if MytelPayV2 is installed. 
-            <br>✅ <strong>If installed:</strong> Opens the app with your deep link
-            <br>📱 <strong>If not installed:</strong> Automatically redirects to App Store/Play Store
-            <br><br><strong>Platform Detection:</strong> iOS → App Store | Android → Play Store
+            <strong>🎯 Web Browser Deep Link Testing:</strong> 
+            <br>✅ <strong>If MytelPayV2 is installed:</strong> Opens the app with your deep link
+            <br>📱 <strong>If not installed:</strong> You'll be asked if the app opened, then redirected to app store
+            <br><br><strong>Note:</strong> Web browsers have limited deep link detection compared to native apps
+            <br><strong>Platform Detection:</strong> iOS → App Store | Android → Play Store
         </div>
 
         <!-- Cinema Ticket Payment Example -->
@@ -208,45 +209,80 @@
             return 'unknown';
         }
 
-        // Check if app is installed by trying to open it and detecting if we get focus back
+        // Better approach for web browsers - try multiple methods
         function checkAppInstalled(deepLinkUrl, callback) {
-            const startTime = Date.now();
-            let hasFocus = true;
+            const platform = getPlatform();
+            let attempts = 0;
+            const maxAttempts = 3;
             
-            // Set up focus detection
-            const onBlur = () => {
-                hasFocus = false;
-            };
-            
-            const onFocus = () => {
-                hasFocus = true;
-            };
-            
-            window.addEventListener('blur', onBlur);
-            window.addEventListener('focus', onFocus);
-            
-            // Try to open the deep link
-            const link = document.createElement('a');
-            link.href = deepLinkUrl;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Check after a short delay
-            setTimeout(() => {
-                window.removeEventListener('blur', onBlur);
-                window.removeEventListener('focus', onFocus);
+            const tryOpenApp = () => {
+                attempts++;
+                console.log(`Attempt ${attempts} to open deep link`);
                 
-                const timeElapsed = Date.now() - startTime;
-                
-                // If we lost focus and got it back quickly, app probably opened
-                if (!hasFocus && timeElapsed < 2000) {
-                    callback(true); // App is installed
+                if (platform === 'android') {
+                    // For Android, try multiple approaches
+                    if (attempts === 1) {
+                        // Method 1: Direct deep link
+                        tryDirectDeepLink();
+                    } else if (attempts === 2) {
+                        // Method 2: Intent URL with package
+                        tryIntentUrl();
+                    } else {
+                        // Method 3: Fallback to app store
+                        callback(false);
+                    }
                 } else {
-                    callback(false); // App is not installed
+                    // For iOS, just try direct deep link
+                    tryDirectDeepLink();
                 }
-            }, 1500);
+            };
+            
+            const tryDirectDeepLink = () => {
+                const link = document.createElement('a');
+                link.href = deepLinkUrl;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                // For web browsers, we can't reliably detect if app opened
+                // So we'll show a message and let user decide
+                setTimeout(() => {
+                    showUserFeedback();
+                }, 1000);
+            };
+            
+            const tryIntentUrl = () => {
+                // Android Intent URL format
+                const intentUrl = `intent://${deepLinkUrl.replace('mytelpay://', '')}#Intent;scheme=mytelpay;package=com.mytelpay.v2.eu;end`;
+                const link = document.createElement('a');
+                link.href = intentUrl;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                setTimeout(() => {
+                    showUserFeedback();
+                }, 1000);
+            };
+            
+            const showUserFeedback = () => {
+                const platform = getPlatform();
+                const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.android;
+                
+                const message = platform === 'ios' 
+                    ? 'Did MytelPayV2 open? If not, we\'ll redirect you to the App Store.'
+                    : 'Did MytelPayV2 open? If not, we\'ll redirect you to the Play Store.';
+                
+                if (confirm(message)) {
+                    callback(true);
+                } else {
+                    callback(false);
+                }
+            };
+            
+            tryOpenApp();
         }
 
         function testDeepLink(elementId) {
@@ -265,7 +301,7 @@
             if (url.includes('mytelpay://')) {
                 // Show loading message
                 const originalText = event.target.textContent;
-                event.target.textContent = 'Checking...';
+                event.target.textContent = 'Opening...';
                 event.target.disabled = true;
                 
                 checkAppInstalled(url, (isInstalled) => {
@@ -274,7 +310,7 @@
                     event.target.disabled = false;
                     
                     if (isInstalled) {
-                        alert('✅ Success!\n\nMytelPayV2 is installed and should have opened with your deep link!');
+                        alert('✅ Success!\n\nMytelPayV2 opened with your deep link!');
                     } else {
                         // Redirect to app store
                         const platform = getPlatform();
