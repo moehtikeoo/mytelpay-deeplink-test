@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="MytelPayV2 Test">
+    <title>MytelPayV2 Deep Link Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .example {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .example h3 {
+            margin-top: 0;
+            color: #2c5aa0;
+        }
+        .url {
+            background-color: #f0f0f0;
+            padding: 10px;
+            border-radius: 3px;
+            font-family: monospace;
+            word-break: break-all;
+            margin: 10px 0;
+        }
+        button {
+            background-color: #2c5aa0;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover {
+            background-color: #1e3d6f;
+        }
+        .description {
+            color: #666;
+            font-style: italic;
+            margin-bottom: 10px;
+        }
+        .ios-instructions {
+            background-color: #e3f2fd;
+            border: 1px solid #2196f3;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .ios-instructions h4 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .ios-instructions ol {
+            margin: 10px 0;
+            padding-left: 20px;
+        }
+        .ios-instructions li {
+            margin: 5px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 MytelPayV2 Deep Link Test</h1>
+        
+        <div class="ios-instructions">
+            <h4>📱 iOS Instructions:</h4>
+            <ol>
+                <li><strong>Open in Safari:</strong> Tap the share button (📤) and select "Open in Safari"</li>
+                <li><strong>Add to Home Screen:</strong> Tap share → "Add to Home Screen" for easy access</li>
+                <li><strong>Test Deep Links:</strong> Tap the buttons below to test different deep link scenarios</li>
+                <li><strong>If MytelPayV2 opens:</strong> The deep link worked! Check the app for the correct screen</li>
+                <li><strong>If nothing happens:</strong> MytelPayV2 might not be installed</li>
+            </ol>
+        </div>
+
+        <!-- Cinema Ticket Payment Example -->
+        <div class="example">
+            <h3>🎬 Cinema Ticket Payment</h3>
+            <div class="description">
+                Example: User selects seats and chooses MytelPayV2 as payment method
+            </div>
+            <div class="url" id="cinema-custom">
+                mytelpay://payment/cinema/MyanmarCinema/amount/15000/ticketId/TKT123456/seats/A1,A2,A3
+            </div>
+            <button onclick="testDeepLink('cinema-custom')">Test Custom Scheme</button>
+            
+            <div class="url" id="cinema-universal">
+                https://mytelpay.com/payment?cinema=MyanmarCinema&amount=15000&ticketId=TKT123456&seats=A1,A2,A3
+            </div>
+            <button onclick="testDeepLink('cinema-universal')">Test Universal Link</button>
+        </div>
+
+        <!-- Restaurant Payment Example -->
+        <div class="example">
+            <h3>🍽️ Restaurant Payment</h3>
+            <div class="description">
+                Example: Pay for restaurant bill through MytelPayV2
+            </div>
+            <div class="url" id="restaurant-custom">
+                mytelpay://payment/restaurant/amount/25000/orderId/ORD789
+            </div>
+            <button onclick="testDeepLink('restaurant-custom')">Test Custom Scheme</button>
+            
+            <div class="url" id="restaurant-universal">
+                https://mytelpay.com/payment?restaurant=MyanmarRestaurant&amount=25000&orderId=ORD789
+            </div>
+            <button onclick="testDeepLink('restaurant-universal')">Test Universal Link</button>
+        </div>
+
+        <!-- Online Shopping Payment Example -->
+        <div class="example">
+            <h3>🛒 Online Shopping Payment</h3>
+            <div class="description">
+                Example: Pay for online purchase through MytelPayV2
+            </div>
+            <div class="url" id="shopping-custom">
+                mytelpay://payment/shop/amount/45000/orderId/SHOP456
+            </div>
+            <button onclick="testDeepLink('shopping-custom')">Test Custom Scheme</button>
+            
+            <div class="url" id="shopping-universal">
+                https://mytelpay.com/payment?shop=OnlineShop&amount=45000&orderId=SHOP456
+            </div>
+            <button onclick="testDeepLink('shopping-universal')">Test Universal Link</button>
+        </div>
+
+        <!-- Navigation Examples -->
+        <div class="example">
+            <h3>🧭 Navigation Examples</h3>
+            <div class="description">
+                Examples: Navigate to different screens in MytelPayV2
+            </div>
+            
+            <div class="url" id="home-custom">mytelpay://home</div>
+            <button onclick="testDeepLink('home-custom')">Go to Home</button>
+            
+            <div class="url" id="transfer-custom">mytelpay://transfer</div>
+            <button onclick="testDeepLink('transfer-custom')">Go to Transfer</button>
+            
+            <div class="url" id="topup-custom">mytelpay://topup</div>
+            <button onclick="testDeepLink('topup-custom')">Go to Top Up</button>
+            
+            <div class="url" id="qr-custom">mytelpay://qr</div>
+            <button onclick="testDeepLink('qr-custom')">Go to QR Code</button>
+            
+            <div class="url" id="restaurant-custom">mytelpay://payment/restaurant/GoldenDragon/amount/25000/orderId/ORD789012</div>
+            <button onclick="testDeepLink('restaurant-custom')">Restaurant Payment</button>
+        </div>
+
+        <!-- Test Component -->
+        <div class="example">
+            <h3>🧪 Deep Link Test Component</h3>
+            <div class="description">
+                Navigate to the built-in test component in the app
+            </div>
+            <div class="url" id="test-custom">mytelpay://test</div>
+            <button onclick="testDeepLink('test-custom')">Open Test Component</button>
+        </div>
+
+        <!-- Universal Links Section -->
+        <div class="example">
+            <h3>🌐 Universal Links (HTTPS)</h3>
+            <div class="description">
+                Test universal links that work in web browsers
+            </div>
+            
+            <div class="url" id="home-universal">https://mytelpay.com/home</div>
+            <button onclick="testDeepLink('home-universal')">Go to Home (Universal)</button>
+            
+            <div class="url" id="qr-universal">https://mytelpay.com/qr</div>
+            <button onclick="testDeepLink('qr-universal')">Go to QR Code (Universal)</button>
+            
+            <div class="url" id="transfer-universal">https://mytelpay.com/transfer</div>
+            <button onclick="testDeepLink('transfer-universal')">Go to Transfer (Universal)</button>
+            
+            <div class="url" id="payment-universal">https://mytelpay.com/payment?cinema=MyanmarCinema&amount=15000&ticketId=TKT123456</div>
+            <button onclick="testDeepLink('payment-universal')">Cinema Payment (Universal)</button>
+            
+            <div class="url" id="restaurant-universal">https://mytelpay.com/payment?restaurant=GoldenDragon&amount=25000&orderId=ORD789012</div>
+            <button onclick="testDeepLink('restaurant-universal')">Restaurant Payment (Universal)</button>
+        </div>
+    </div>
+
+    <script>
+        function testDeepLink(elementId) {
+            const urlElement = document.getElementById(elementId);
+            const url = urlElement.textContent.trim();
+            
+            console.log('Testing deep link:', url);
+            
+            // iOS Safari specific handling
+            if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+                // For iOS, try multiple methods
+                try {
+                    // Method 1: Direct window.location
+                    window.location.href = url;
+                } catch (error) {
+                    console.log('Method 1 failed:', error);
+                    // Method 2: Create link and click
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.target = '_blank';
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                }
+            } else {
+                // For other platforms, use the standard method
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            // Show a message after a short delay
+            setTimeout(() => {
+                alert('Deep link test completed!\n\nIf MytelPayV2 is installed, it should have opened.\nIf not, you should be redirected to the app store.');
+            }, 1000);
+        }
+
+        // Add some interactive features
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('MytelPayV2 Deep Link Test Page Loaded');
+            console.log('Available deep link examples:');
+            console.log('- Cinema ticket payment');
+            console.log('- Restaurant payment');
+            console.log('- Online shopping payment');
+            console.log('- Navigation examples');
+            console.log('- Test component');
+            
+            // iOS specific instructions
+            if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
+                console.log('iOS detected - make sure to open this page in Safari for best results');
+            }
+        });
+    </script>
+</body>
+</html>
