@@ -229,6 +229,7 @@
                         tryIntentUrl();
                     } else {
                         // Method 3: Fallback to app store
+                        console.log('Android: All methods failed, redirecting to store');
                         callback(false);
                     }
                 } else {
@@ -269,15 +270,18 @@
             
             const showUserFeedback = () => {
                 const platform = getPlatform();
-                const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.android;
                 
                 const message = platform === 'ios' 
                     ? 'Did MytelPayV2 open? If not, we\'ll redirect you to the App Store.'
                     : 'Did MytelPayV2 open? If not, we\'ll redirect you to the Play Store.';
                 
+                console.log('Showing feedback dialog for platform:', platform);
+                
                 if (confirm(message)) {
+                    console.log('User confirmed app opened');
                     callback(true);
                 } else {
+                    console.log('User confirmed app did NOT open, will redirect to store');
                     callback(false);
                 }
             };
@@ -309,12 +313,16 @@
                     event.target.textContent = originalText;
                     event.target.disabled = false;
                     
+                    console.log('Callback received, isInstalled:', isInstalled);
+                    
                     if (isInstalled) {
                         alert('✅ Success!\n\nMytelPayV2 opened with your deep link!');
                     } else {
                         // Redirect to app store
                         const platform = getPlatform();
                         const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.android;
+                        
+                        console.log('Redirecting to store:', storeUrl);
                         
                         if (platform === 'ios') {
                             alert('📱 MytelPayV2 not found!\n\nRedirecting you to the App Store to download MytelPayV2...');
@@ -325,7 +333,9 @@
                         }
                         
                         // Open app store
-                        window.open(storeUrl, '_blank');
+                        setTimeout(() => {
+                            window.open(storeUrl, '_blank');
+                        }, 500);
                     }
                 });
             } else {
