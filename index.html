@@ -3,9 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <meta name="apple-mobile-web-app-title" content="MytelPayV2 Test">
     <title>MytelPayV2 Deep Link Test</title>
     <style>
         body {
@@ -61,23 +58,12 @@
             font-style: italic;
             margin-bottom: 10px;
         }
-        .ios-instructions {
-            background-color: #e3f2fd;
-            border: 1px solid #2196f3;
+        .note {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
             padding: 15px;
             border-radius: 5px;
             margin: 20px 0;
-        }
-        .ios-instructions h4 {
-            margin-top: 0;
-            color: #1976d2;
-        }
-        .ios-instructions ol {
-            margin: 10px 0;
-            padding-left: 20px;
-        }
-        .ios-instructions li {
-            margin: 5px 0;
         }
     </style>
 </head>
@@ -85,15 +71,10 @@
     <div class="container">
         <h1>🎬 MytelPayV2 Deep Link Test</h1>
         
-        <div class="ios-instructions">
-            <h4>📱 iOS Instructions:</h4>
-            <ol>
-                <li><strong>Open in Safari:</strong> Tap the share button (📤) and select "Open in Safari"</li>
-                <li><strong>Add to Home Screen:</strong> Tap share → "Add to Home Screen" for easy access</li>
-                <li><strong>Test Deep Links:</strong> Tap the buttons below to test different deep link scenarios</li>
-                <li><strong>If MytelPayV2 opens:</strong> The deep link worked! Check the app for the correct screen</li>
-                <li><strong>If nothing happens:</strong> MytelPayV2 might not be installed</li>
-            </ol>
+        <div class="note">
+            <strong>Note:</strong> This page tests deep linking to MytelPayV2 app. 
+            If the app is installed, it will open with the specified data. 
+            If not installed, it will redirect to the app store.
         </div>
 
         <!-- Cinema Ticket Payment Example -->
@@ -211,35 +192,27 @@
             
             console.log('Testing deep link:', url);
             
-            // iOS Safari specific handling
-            if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
-                // For iOS, try multiple methods
-                try {
-                    // Method 1: Direct window.location
-                    window.location.href = url;
-                } catch (error) {
-                    console.log('Method 1 failed:', error);
-                    // Method 2: Create link and click
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.target = '_blank';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
-                }
-            } else {
-                // For other platforms, use the standard method
-                const link = document.createElement('a');
-                link.href = url;
-                link.target = '_blank';
-                document.body.appendChild(link);
-                link.click();
-                document.body.removeChild(link);
+            // Check if it's a universal link that might not work
+            if (url.includes('https://mytelpay.com')) {
+                alert('⚠️ Universal Link Test\n\nThis is a test universal link (https://mytelpay.com) that doesn\'t exist yet.\n\nFor testing purposes, try the custom scheme links instead:\n• mytelpay://payment/cinema/MyanmarCinema/amount/15000\n• mytelpay://transfer\n• mytelpay://qr\n\nThese will work if MytelPayV2 is installed!');
+                return;
             }
+            
+            // Try to open the deep link
+            const link = document.createElement('a');
+            link.href = url;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
             
             // Show a message after a short delay
             setTimeout(() => {
-                alert('Deep link test completed!\n\nIf MytelPayV2 is installed, it should have opened.\nIf not, you should be redirected to the app store.');
+                if (url.includes('mytelpay://')) {
+                    alert('Deep link test completed!\n\nIf MytelPayV2 is installed, it should have opened.\nIf not, you\'ll see "Safari cannot open the page" - this is normal!');
+                } else {
+                    alert('Deep link test completed!\n\nCheck if MytelPayV2 opened or if you were redirected to the app store.');
+                }
             }, 1000);
         }
 
@@ -252,11 +225,6 @@
             console.log('- Online shopping payment');
             console.log('- Navigation examples');
             console.log('- Test component');
-            
-            // iOS specific instructions
-            if (navigator.userAgent.includes('iPhone') || navigator.userAgent.includes('iPad')) {
-                console.log('iOS detected - make sure to open this page in Safari for best results');
-            }
         });
     </script>
 </body>
