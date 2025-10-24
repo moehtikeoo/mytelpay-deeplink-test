@@ -53,6 +53,10 @@
         button:hover {
             background-color: #1e3d6f;
         }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
         .description {
             color: #666;
             font-style: italic;
@@ -72,9 +76,10 @@
         <h1>🎬 MytelPayV2 Deep Link Test</h1>
         
         <div class="note">
-            <strong>Note:</strong> This page tests deep linking to MytelPayV2 app. 
-            If the app is installed, it will open with the specified data. 
-            If not installed, it will redirect to the app store.
+            <strong>🎯 Smart Deep Link Testing:</strong> This page automatically detects if MytelPayV2 is installed. 
+            <br>✅ <strong>If installed:</strong> Opens the app with your deep link
+            <br>📱 <strong>If not installed:</strong> Automatically redirects to App Store/Play Store
+            <br><br><strong>Platform Detection:</strong> iOS → App Store | Android → Play Store
         </div>
 
         <!-- Cinema Ticket Payment Example -->
@@ -186,6 +191,64 @@
     </div>
 
     <script>
+        // App store URLs
+        const APP_STORE_URLS = {
+            ios: 'https://apps.apple.com/app/mytelpay/id123456789', // Replace with actual App Store ID
+            android: 'https://play.google.com/store/apps/details?id=com.mytelpay.v2.eu'
+        };
+
+        // Detect platform
+        function getPlatform() {
+            const userAgent = navigator.userAgent.toLowerCase();
+            if (userAgent.includes('iphone') || userAgent.includes('ipad')) {
+                return 'ios';
+            } else if (userAgent.includes('android')) {
+                return 'android';
+            }
+            return 'unknown';
+        }
+
+        // Check if app is installed by trying to open it and detecting if we get focus back
+        function checkAppInstalled(deepLinkUrl, callback) {
+            const startTime = Date.now();
+            let hasFocus = true;
+            
+            // Set up focus detection
+            const onBlur = () => {
+                hasFocus = false;
+            };
+            
+            const onFocus = () => {
+                hasFocus = true;
+            };
+            
+            window.addEventListener('blur', onBlur);
+            window.addEventListener('focus', onFocus);
+            
+            // Try to open the deep link
+            const link = document.createElement('a');
+            link.href = deepLinkUrl;
+            link.target = '_blank';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            // Check after a short delay
+            setTimeout(() => {
+                window.removeEventListener('blur', onBlur);
+                window.removeEventListener('focus', onFocus);
+                
+                const timeElapsed = Date.now() - startTime;
+                
+                // If we lost focus and got it back quickly, app probably opened
+                if (!hasFocus && timeElapsed < 2000) {
+                    callback(true); // App is installed
+                } else {
+                    callback(false); // App is not installed
+                }
+            }, 1500);
+        }
+
         function testDeepLink(elementId) {
             const urlElement = document.getElementById(elementId);
             const url = urlElement.textContent.trim();
@@ -198,22 +261,50 @@
                 return;
             }
             
-            // Try to open the deep link
-            const link = document.createElement('a');
-            link.href = url;
-            link.target = '_blank';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // Show a message after a short delay
-            setTimeout(() => {
-                if (url.includes('mytelpay://')) {
-                    alert('Deep link test completed!\n\nIf MytelPayV2 is installed, it should have opened.\nIf not, you\'ll see "Safari cannot open the page" - this is normal!');
-                } else {
+            // Only check for custom schemes
+            if (url.includes('mytelpay://')) {
+                // Show loading message
+                const originalText = event.target.textContent;
+                event.target.textContent = 'Checking...';
+                event.target.disabled = true;
+                
+                checkAppInstalled(url, (isInstalled) => {
+                    // Restore button
+                    event.target.textContent = originalText;
+                    event.target.disabled = false;
+                    
+                    if (isInstalled) {
+                        alert('✅ Success!\n\nMytelPayV2 is installed and should have opened with your deep link!');
+                    } else {
+                        // Redirect to app store
+                        const platform = getPlatform();
+                        const storeUrl = APP_STORE_URLS[platform] || APP_STORE_URLS.android;
+                        
+                        if (platform === 'ios') {
+                            alert('📱 MytelPayV2 not found!\n\nRedirecting you to the App Store to download MytelPayV2...');
+                        } else if (platform === 'android') {
+                            alert('📱 MytelPayV2 not found!\n\nRedirecting you to the Play Store to download MytelPayV2...');
+                        } else {
+                            alert('📱 MytelPayV2 not found!\n\nRedirecting you to the app store to download MytelPayV2...');
+                        }
+                        
+                        // Open app store
+                        window.open(storeUrl, '_blank');
+                    }
+                });
+            } else {
+                // For other URLs, just try to open them
+                const link = document.createElement('a');
+                link.href = url;
+                link.target = '_blank';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                setTimeout(() => {
                     alert('Deep link test completed!\n\nCheck if MytelPayV2 opened or if you were redirected to the app store.');
-                }
-            }, 1000);
+                }, 1000);
+            }
         }
 
         // Add some interactive features
